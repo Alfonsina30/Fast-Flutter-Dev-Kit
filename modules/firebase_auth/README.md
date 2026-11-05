@@ -1,0 +1,167 @@
+FIREBASE_AUTH_SERVICE
+This module provides a robust and reusable code for using Firebase Authentication in your Flutter app, including the implementation for:
+
+Registration and Login with email and password.
+
+User Logout.
+
+Resetting the user's login password.
+
+Error Handling.
+
+Step 1: Firebase Configuration
+Access Firebase with your Google Account:
+
+Create the project in the Firebase Console. This project can have the same name as your application.
+
+Install the required command-line tools.
+
+Note: If you use macOS or Linux, the following link provides the step-by-step guide to install the Firebase CLI:
+
+https://firebase.google.com/docs/cli?hl=es-419#setup_update_cli
+
+Step-by-step to install the Firebase CLI on Windows:
+
+Install the Firebase CLI. In my case, I used the npm option.
+
+You can use npm (Node Package Manager) to install the Firebase CLI through these steps:
+
+Install Node.js with nvm-windows (Node Version Manager). When you do this, the npm command-line tools will automatically be installed.
+
+NOTE 💡 Firebase CLI requires Node.js 18.0.0 or later. Some Firebase features may require specific Node.js versions, so check the getting started page for each product for their specific Node.js requirements.
+
+Execute the following command to install Firebase CLI via npm: npm install -g firebase-tools
+
+This makes the firebase command globally available. The CLI allows you to connect your local folder with the Firebase project in the cloud. Additionally, it helps you configure which services you will use and creates crucial configuration files (firebase.json and .firebaserc).
+
+Install the FlutterFire CLI:
+
+To install the FlutterFire CLI, execute the following command from any directory: dart pub global activate flutterfire_cli
+
+The FlutterFire CLI is a very useful auxiliary tool created specifically to facilitate the configuration and connection of Firebase with a Flutter application that supports multiple platforms (Android, iOS, Web, etc.).
+
+Its main function is automation:
+
+Configuration Generation: It allows you to run the flutterfire configure command (once the CLI is installed), which automatically:
+
+Generates the firebase_options.dart file containing all the specific configuration (API keys, app IDs, etc.) for each platform of your project.
+
+Downloads and places the native configuration files (GoogleService-Info.plist for iOS/macOS and google-services.json for Android) in the correct locations.
+
+Step 2: Initialize Firebase in your Application
+Access Firebase from your Flutter project directory in the VS Code terminal, using your Google Account, by executing the following command: firebase login
+
+From your Flutter project directory, execute the following command to install the core plugin: flutter pub add firebase_core
+
+The firebase_core package is the "core" or the foundation of the Firebase connection.
+
+Without firebase_core, no other Firebase package (firebase_auth, cloud_firestore, etc.) will work.
+
+From your Flutter project directory, execute the following command to link the project created in the Firebase console and your Flutter project, and to ensure that your Flutter application's Firebase configuration is up-to-date: flutterfire configure
+
+Select the project already created in the Firebase console.
+
+Choose which platform (android, ios, macos, web, linux) the configuration will support.
+
+In the lib/main.dart file, import the Firebase Core plugin and the configuration file generated previously:
+
+//Flutter import
+import 'package:flutter/material.dart';
+
+//-- Firebase import
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+// o
+import 'package:fast_kit/firebase_options.dart';
+Additionally, in the lib/main.dart file, initialize Firebase using the DefaultFirebaseOptions object imported from the configuration file:
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(const MainApp());
+}
+Recreate the Flutter application:
+
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(colorSchemeSeed: Colors.deepOrange),
+      home: Center(
+        child: Text("Firebase Authentication"),
+      ),
+    );
+  }
+}
+Execute: flutter run
+
+Step 3: Add Firebase Plugins to the Flutter App
+Access Firebase in your Flutter application through the different Firebase Flutter plugins. There is one plugin for each Firebase product (e.g., Cloud Firestore, Authentication, Analytics, etc.).
+
+💡In our case, we are going to add the plugin for authentication.
+
+From your Flutter project directory, run this command: flutter pub add firebase_auth
+
+From your Flutter project directory, run this command: flutterfire configure
+
+Running this command ensures that your Flutter application's Firebase configuration is up-to-date and, for Crashlytics and Performance Monitoring on Android, it adds the necessary Gradle plugins to your application.
+
+Finally, rebuild your Flutter project: flutter run
+
+NOTE 💡: In our project in VSCODE, a file with all the information about the app created in Firebase and connected to our app will be created in lib/firebase_options.dart.
+
+Step 4: Configure Authentication with Firebase to the Flutter App
+After configuring Firebase in our Flutter project, we will follow these steps for authentication:
+
+Go to the Firebase Console at: https://console.firebase.google.com
+
+Choose the recently created project.
+
+In the menu:
+
+go to Build / Authentication.
+
+Tap on Sign-in method.
+
+A list of login providers will open.
+
+Choose the Email/Password option.
+Tap on:
+
+Button Enable
+
+Button Save
+
+Step 5: Implementation & Architecture Layers
+This module separates infrastructure, business logic, and UI following Clean Architecture principles.
+
+Data Layer (Service Implementation) The FirebaseAuthServiceImpl handles direct communication with the Firebase SDK. The AuthRepositoryImpl handles direct communication with the FirebaseAuthService.
+🔗 Link to Firebase service 🔗 Link to Repository
+
+You can use his methods to handle:
+
+-Registration and login with email and password.
+
+-User logout.
+
+-Resetting the user's login password.
+
+Domain/Data Layer (Repository Pattern) The Repository abstracts the service, ensuring that our application core remains decoupled from external SDK dependencies. 🔗 Link to Firebase service 🔗 Link to Repository
+
+Presentation Layer (State Management) The AuthCubit coordinates user actions (UI) and communicates directly with the Repository to handle state propagation natively.
+
+🔗 Link to Cubit 🔗 Link to State Cubit
+
+Full Production-Ready Example
+Below is a full example implementing user registration. It utilizes the validation utilities centralized in the form_validation module to keep UI logic thin and decoupled.
+
+🔗 View Full Registration Screen Code
+
+💡 Architectural Note: In this setup, the UI never instantiates repositories or Firebase services directly. It delegates tasks to the AuthCubit, making the entire presentation layer highly testable and independent of the infrastructure provider.
+
+🔗 Full Example
